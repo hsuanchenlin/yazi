@@ -1,30 +1,30 @@
 local M = {}
 
 local targets = ya.sync(function()
-	local urls = {}
+	local paths = {}
 	for _, f in pairs(cx.active.selected) do
-		urls[#urls + 1] = tostring(f.url)
+		paths[#paths + 1] = tostring(f.path)
 	end
 
 	local h = cx.active.current.hovered
-	if #urls == 0 and h then
-		urls[1] = tostring(h.url)
+	if #paths == 0 and h then
+		paths[1] = tostring(h.path)
 	end
-	return urls
+	return paths
 end)
 
 function M:entry()
-	local urls = targets()
-	if #urls == 0 then
+	local paths = targets()
+	if #paths == 0 then
 		return M.notify("warn", "Nothing to summarize")
 	end
 
-	local md, err = M.summarize(rt.plugin.ai_summarize_cmd, urls)
+	local md, err = M.summarize(rt.plugin.ai_summarize_cmd, paths)
 	if not md then
 		return M.notify("error", tostring(err))
 	end
 
-	local url, err = M.save(md, urls)
+	local url, err = M.save(md, paths)
 	if not url then
 		return M.notify("error", tostring(err))
 	end

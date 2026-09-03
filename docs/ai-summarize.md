@@ -57,8 +57,11 @@ exec claude --print "Summarize these files for a code reviewer: $*"
 
 ```toml
 [plugin]
-ai_summarize_cmd = "~/.local/bin/ya-summarize"
+ai_summarize_cmd = "/home/you/.local/bin/ya-summarize"
 ```
+
+Spell that path out in full: since the command is not run through a shell, a leading `~` is not
+expanded and would be looked up as a program literally named `~/.local/bin/ya-summarize`.
 
 ## Remapping the key
 
