@@ -46,12 +46,19 @@ function M.words(cmd)
 	return words
 end
 
----Clamp `s` to at most `max` bytes, appending `marker` when anything was cut.
+---Clamp `s` to at most `max` bytes, cutting on a codepoint boundary and appending `marker` when anything was cut.
 ---@param s string
 ---@param max integer
 ---@param marker string
 ---@return string
-function M.clamp(s, max, marker) return #s <= max and s or s:sub(1, max) .. marker end
+function M.clamp(s, max, marker)
+	if #s <= max then
+		return s
+	end
+
+	local ok, start = pcall(utf8.offset, s, 0, max + 1)
+	return s:sub(1, ok and start and start - 1 or max) .. marker
+end
 
 ---Run the AI CLI over `paths`, and return whatever Markdown it writes to stdout.
 ---@param cmd string
