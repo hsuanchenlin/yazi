@@ -188,6 +188,9 @@ previewers = [
 	{ url = "*", run = "file" },
 ]
 
+# The AI CLI that the `ai-summarize` plugin runs, with the target file paths appended as arguments
+ai_summarize_cmd = "claude --print"
+
 [input]
 cursor_blink = false
 

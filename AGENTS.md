@@ -7,6 +7,7 @@
 ## Project
 
 - Rust 2024 Cargo workspace containing all `yazi-*` crates; default members are `yazi-fm` (`yazi`) and `yazi-cli` (`ya`).
+- This is a fork of `sxyazi/yazi`; keep changes here and never open PRs upstream. Fork-local features are documented under `docs/`.
 
 ## Style
 
@@ -40,6 +41,7 @@
 
 - Prefer targeted debug checks; use multiple `-p` flags for affected crates before the whole workspace.
 - When investigating bugs, add temporary diagnostics when useful (`tracing` in Rust and `ya.dbg` in Lua), reproduce in a simulated terminal with `YAZI_LOG=debug`, and inspect the log file to pinpoint the cause. When debugging on a real terminal, use its IPC remote-control interface whenever supported. Remove temporary diagnostics before handoff.
+- A simulated terminal needs a window size set on the pty (`TIOCSWINSZ`), or Yazi exits with `failed to get terminal dimension`; point `XDG_RUNTIME_DIR` at a short path such as `/tmp/...`, since a long one overflows `SUN_LEN` for the DDS socket. In debug builds `plugin_preset!` reads `yazi-plugin/preset/**.lua` from disk at runtime, so Lua edits need no rebuild.
 
 ```sh
 cargo check -p <package>
@@ -49,5 +51,13 @@ rustfmt +nightly **/*.rs
 stylua --color always --check .
 ```
 
+- The workspace MSRV is 1.95.0 (`rust-version` in the root `Cargo.toml`) and the code uses `if let` guards; if `cargo` reports `rustc <version> is not supported` or `if let guards are experimental`, run `rustup update` before assuming the change is at fault.
 - Use `cargo check` instead of `cargo build` unless artifacts are needed. Do not use `--release` unless requested; use `scripts/build.sh <target>` for release or cross-target packaging.
 - Run relevant existing tests when needed, then inspect `git diff` and verify that only intended files changed.
+
+## Maintaining this file
+
+Keep this file for knowledge useful to almost every future agent session in this project.
+Do not repeat what the codebase already shows; point to the authoritative file or command instead.
+Prefer rewriting or pruning existing entries over appending new ones.
+When updating this file, preserve this bar for all agents and keep entries concise.

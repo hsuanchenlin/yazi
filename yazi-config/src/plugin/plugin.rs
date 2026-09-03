@@ -31,6 +31,8 @@ pub struct Plugin {
 	prepend_previewers: Vec<Previewer>,
 	#[serde(default)]
 	append_previewers:  Vec<Previewer>,
+
+	pub ai_summarize_cmd: String,
 }
 
 impl DeserializeOverHook for Plugin {
@@ -49,6 +51,7 @@ impl DeserializeOverHook for Plugin {
 			spotters: spotters.into(),
 			preloaders: preloaders.try_into().map_err(de::Error::custom)?,
 			previewers: previewers.into(),
+			ai_summarize_cmd: self.ai_summarize_cmd,
 			..Default::default()
 		})
 	}
