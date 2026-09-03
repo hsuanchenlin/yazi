@@ -15,7 +15,8 @@ Markdown from its stdout to `<runtime dir>/ai-summaries/<timestamp>.md`, and rev
 preview pane renders it. Press `H` to go back to where you were.
 
 If the CLI can't be started, exits non-zero, or prints nothing, the plugin reports it as a
-notification and leaves everything untouched.
+notification and leaves everything untouched. A summary is capped at 1 MiB; anything beyond that is
+dropped with a note at the end of the file.
 
 ## Configuration
 
@@ -28,17 +29,18 @@ ai_summarize_cmd = "claude --print"
 
 It defaults to `claude --print`. The string is split on whitespace into a program and its leading
 arguments, then the target paths are appended - it is not run through a shell, so pipes,
-redirections, and quoting have no effect here. For anything more elaborate, point it at a wrapper
-script of your own.
+redirections, and quoting have no effect here.
+
+Every whitespace-separated word becomes its own argument, which means a multi-word prompt cannot be
+passed inline: `"claude --print Summarize these files:"` reaches `claude` as four separate arguments,
+not one prompt. Use the wrapper script below whenever you want a prompt, or anything else a shell
+would normally do for you.
 
 ### Examples
 
 ```toml
 # Claude Code, the default
 ai_summarize_cmd = "claude --print"
-
-# A prompt in front of the paths
-ai_summarize_cmd = "claude --print Summarize each of these files in a few bullets:"
 
 # Any other CLI that reads paths as arguments and prints Markdown
 ai_summarize_cmd = "gpt --model gpt-5 summarize"
@@ -47,7 +49,7 @@ ai_summarize_cmd = "gpt --model gpt-5 summarize"
 ai_summarize_cmd = "cat"
 ```
 
-A wrapper script when you need shell features:
+A wrapper script when you need shell features, a multi-word prompt among them:
 
 ```sh
 #!/bin/sh

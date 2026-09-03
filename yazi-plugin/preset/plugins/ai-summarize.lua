@@ -1,5 +1,8 @@
 local M = {}
 
+local STDOUT_MAX = 1024 * 1024
+local STDERR_MAX = 1024
+
 local targets = ya.sync(function()
 	local paths = {}
 	for _, f in pairs(cx.active.selected) do
@@ -43,6 +46,13 @@ function M.words(cmd)
 	return words
 end
 
+---Clamp `s` to at most `max` bytes, appending `marker` when anything was cut.
+---@param s string
+---@param max integer
+---@param marker string
+---@return string
+function M.clamp(s, max, marker) return #s <= max and s or s:sub(1, max) .. marker end
+
 ---Run the AI CLI over `paths`, and return whatever Markdown it writes to stdout.
 ---@param cmd string
 ---@param paths string[]
@@ -67,11 +77,12 @@ function M.summarize(cmd, paths)
 	if not output then
 		return nil, Err("Cannot read `%s` output, error: %s", prog, err)
 	elseif not output.status.success then
-		return nil, Err("`%s` exited with code %s: %s", prog, output.status.code, output.stderr)
+		local stderr = M.clamp(output.stderr, STDERR_MAX, " ...")
+		return nil, Err("`%s` exited with code %s: %s", prog, output.status.code, stderr)
 	elseif output.stdout == "" then
 		return nil, Err("`%s` produced an empty summary", prog)
 	end
-	return output.stdout, nil
+	return M.clamp(output.stdout, STDOUT_MAX, "\n\n> Truncated here: the summary exceeded 1 MiB."), nil
 end
 
 ---Write the summary to its own file under Yazi's runtime directory, leaving the summarized files untouched.
