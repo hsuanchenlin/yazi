@@ -191,6 +191,9 @@ previewers = [
 # The AI CLI that the `ai-summarize` plugin runs, with the target file paths appended as arguments
 ai_summarize_cmd = "claude --print"
 
+# The AI CLI that the `ai-rename` plugin runs, with the rename prompt appended as an argument
+ai_rename_cmd = "claude --print"
+
 [input]
 cursor_blink = false
 

@@ -77,7 +77,8 @@ desc = "Summarize the selected files with an AI CLI"
 ```
 
 Note that `A` is upstream Yazi's `bulk_create` key. Taking it over for `ai-summarize` moves
-`bulk_create` to `R`, which is otherwise unbound; nothing is lost, but the muscle memory changes.
+`bulk_create` aside; [`ai-rename`](ai-rename.md) then took `R`, so `bulk_create` now sits on `B`.
+Nothing is lost, but the muscle memory changes.
 
 ## Privacy
 

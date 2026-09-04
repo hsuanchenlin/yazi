@@ -33,6 +33,7 @@ pub struct Plugin {
 	append_previewers:  Vec<Previewer>,
 
 	pub ai_summarize_cmd: String,
+	pub ai_rename_cmd:    String,
 }
 
 impl DeserializeOverHook for Plugin {
@@ -52,6 +53,7 @@ impl DeserializeOverHook for Plugin {
 			preloaders: preloaders.try_into().map_err(de::Error::custom)?,
 			previewers: previewers.into(),
 			ai_summarize_cmd: self.ai_summarize_cmd,
+			ai_rename_cmd: self.ai_rename_cmd,
 			..Default::default()
 		})
 	}

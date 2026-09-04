@@ -10,6 +10,7 @@ pub(super) fn plugin() -> Composer<ComposerGet, ComposerSet> {
 			b"preloaders" => YAZI.plugin.preloaders.into_lua(lua),
 			b"previewers" => YAZI.plugin.previewers.into_lua(lua),
 			b"ai_summarize_cmd" => YAZI.plugin.ai_summarize_cmd.as_str().into_lua(lua),
+			b"ai_rename_cmd" => YAZI.plugin.ai_rename_cmd.as_str().into_lua(lua),
 			_ => Ok(Value::Nil),
 		}
 	}
