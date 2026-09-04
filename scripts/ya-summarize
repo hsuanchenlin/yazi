@@ -1,0 +1,36 @@
+#!/bin/sh
+# Wrapper for Yazi's ai-summarize plugin: holds the multi-word prompt and
+# passes file paths as argv, so yazi.toml can name a single absolute binary.
+#
+#   [plugin]
+#   ai_summarize_cmd = "/Users/you/.local/bin/ya-summarize"
+#
+# YA_SUMMARIZE_CLI  - executable name or path (default: claude)
+# YA_SUMMARIZE_ARGS - extra CLI flags, word-split (default: --print)
+
+set -eu
+set -f
+
+cli=${YA_SUMMARIZE_CLI:-claude}
+instruction='Summarize these files for a code reviewer. File paths follow as arguments. Reply with Markdown only.'
+
+if [ "$#" -lt 1 ]; then
+	printf 'ya-summarize: usage: ya-summarize <file>...\n' >&2
+	exit 2
+fi
+
+resolved=
+case $cli in
+	*/*) resolved=$cli ;;
+	*) resolved=$(command -v "$cli" 2>/dev/null) || resolved= ;;
+esac
+if [ -z "$resolved" ] || [ ! -f "$resolved" ] || [ ! -x "$resolved" ]; then
+	printf 'ya-summarize: CLI not found or not executable: %s\n' "$cli" >&2
+	exit 127
+fi
+
+if [ "${YA_SUMMARIZE_ARGS+set}" = set ]; then
+	exec "$resolved" $YA_SUMMARIZE_ARGS "$instruction" "$@"
+else
+	exec "$resolved" --print "$instruction" "$@"
+fi

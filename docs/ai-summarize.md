@@ -33,8 +33,7 @@ redirections, and quoting have no effect here.
 
 Every whitespace-separated word becomes its own argument, which means a multi-word prompt cannot be
 passed inline: `"claude --print Summarize these files:"` reaches `claude` as four separate arguments,
-not one prompt. Use the wrapper script below whenever you want a prompt, or anything else a shell
-would normally do for you.
+not one prompt. Use the shipped wrapper below whenever you want a prompt.
 
 ### Examples
 
@@ -49,21 +48,30 @@ ai_summarize_cmd = "gpt --model gpt-5 summarize"
 ai_summarize_cmd = "cat"
 ```
 
-A wrapper script when you need shell features, a multi-word prompt among them:
+### Wrapper script
+
+This repo ships `scripts/ya-summarize`. It holds a fixed summarize instruction and passes the file
+paths through as argv, so you never have to put a multi-word prompt in `yazi.toml`. Copy it to an
+absolute path:
 
 ```sh
-#!/bin/sh
-# ~/.local/bin/ya-summarize
-exec claude --print "Summarize these files for a code reviewer: $*"
+mkdir -p "$HOME/.local/bin"
+cp scripts/ya-summarize "$HOME/.local/bin/ya-summarize"
+chmod +x "$HOME/.local/bin/ya-summarize"
 ```
+
+Then point the plugin at that path. Spell it out in full: `~` is not expanded, and each word in
+`ai_summarize_cmd` is its own argument, so a leading `~` would be looked up as a program literally
+named `~/.local/bin/ya-summarize`.
 
 ```toml
 [plugin]
-ai_summarize_cmd = "/home/you/.local/bin/ya-summarize"
+ai_summarize_cmd = "/Users/you/.local/bin/ya-summarize"
 ```
 
-Spell that path out in full: since the command is not run through a shell, a leading `~` is not
-expanded and would be looked up as a program literally named `~/.local/bin/ya-summarize`.
+The script defaults to `claude --print`. Override the binary with `YA_SUMMARIZE_CLI` (a single
+executable name or path, default `claude`) and extra flags with `YA_SUMMARIZE_ARGS` (word-split,
+default `--print`).
 
 ## Remapping the key
 
