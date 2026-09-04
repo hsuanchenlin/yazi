@@ -28,7 +28,7 @@ impl Actor for Rename {
 
 		let Some(hovered) = cx.hovered() else { succ!() };
 
-		let name = Self::empty_url_part(&hovered.url, &form.empty);
+		let name = form.name.unwrap_or_else(|| Self::empty_url_part(&hovered.url, &form.empty).into());
 		let cursor = match form.cursor.as_ref() {
 			"start" => Some(0),
 			"before_ext" => name

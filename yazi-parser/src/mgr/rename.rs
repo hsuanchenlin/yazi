@@ -6,6 +6,7 @@ use yazi_shim::SStr;
 pub struct RenameForm {
 	pub hovered: bool,
 	pub force:   bool,
+	pub name:    Option<SStr>,
 	pub empty:   SStr,
 	pub cursor:  SStr,
 }
@@ -15,6 +16,7 @@ impl From<ActionCow> for RenameForm {
 		Self {
 			hovered: a.bool("hovered"),
 			force:   a.bool("force"),
+			name:    a.take("name").ok(),
 			empty:   a.take("empty").unwrap_or_default(),
 			cursor:  a.take("cursor").unwrap_or_default(),
 		}
