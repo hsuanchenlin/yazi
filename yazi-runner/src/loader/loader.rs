@@ -27,6 +27,7 @@ impl Default for Loader {
 	fn default() -> Self {
 		let cache = HashMap::from_iter([
 			// Plugins
+			("ai-summarize".to_owned(), preset!("plugins/ai-summarize").into()),
 			("archive".to_owned(), preset!("plugins/archive").into()),
 			("clipboard".to_owned(), preset!("plugins/clipboard").into()),
 			("code".to_owned(), preset!("plugins/code").into()),
