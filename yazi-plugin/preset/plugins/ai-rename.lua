@@ -10,12 +10,33 @@ Keep its extension. Reply with the new filename alone: one line, no directory, n
 
 local hovered = ya.sync(function()
 	local h = cx.active.current.hovered
-	return h and h.name or nil
+	if h then
+		return tostring(h.url), h.name
+	end
+end)
+
+---Prompt to rename `url`, but only while it is still the hovered file.
+---
+---The check and the emit share one sync block, so the main thread cannot process a keystroke - and
+---move the hover elsewhere - between them.
+---@param url string
+---@param name string
+---@return boolean
+local rename = ya.sync(function(_, url, name)
+	local h = cx.active.current.hovered
+	if not h or tostring(h.url) ~= url then
+		return false
+	end
+
+	-- Hand the suggestion to Yazi's own `rename`, which prompts with it, renames the hovered file
+	-- alone on submit, and asks before overwriting anything.
+	ya.emit("rename", { name = name, hovered = true, cursor = "before_ext" })
+	return true
 end)
 
 function M:entry()
-	local name = hovered()
-	if not name then
+	local url, name = hovered()
+	if not url then
 		return M.notify("warn", "Nothing to rename")
 	end
 
@@ -24,9 +45,9 @@ function M:entry()
 		return M.notify("error", tostring(err))
 	end
 
-	-- Hand the suggestion to Yazi's own `rename`, which prompts with it, renames the hovered file
-	-- alone on submit, and asks before overwriting anything.
-	ya.emit("rename", { name = new, hovered = true, cursor = "before_ext" })
+	if not rename(url, new) then
+		M.notify("warn", string.format("The hover left `%s` while it was being named, nothing renamed", name))
+	end
 end
 
 ---Split a configured command line into its program and leading arguments.
@@ -50,6 +71,22 @@ function M.line(s)
 			return trimmed
 		end
 	end
+end
+
+---Take the name `prog` suggested out of its `stdout`, refusing anything that cannot name a file.
+---@param prog string
+---@param stdout string
+---@return string?, Error?
+function M.parse(prog, stdout)
+	local new = M.line(stdout)
+	if not new then
+		return nil, Err("`%s` suggested no name", prog)
+	elseif #new > NAME_MAX then
+		return nil, Err("`%s` suggested a name longer than %d bytes", prog, NAME_MAX)
+	elseif new == "." or new == ".." or new:find("[/\\]") then
+		return nil, Err("`%s` suggested `%s`, which isn't a filename", prog, new)
+	end
+	return new, nil
 end
 
 ---Ask the AI CLI to name a file called `name`, and return the single name it suggests.
@@ -77,16 +114,7 @@ function M.suggest(cmd, name)
 		local stderr = M.clamp(output.stderr, STDERR_MAX, " ...")
 		return nil, Err("`%s` exited with code %s: %s", prog, output.status.code, stderr)
 	end
-
-	local new = M.line(output.stdout)
-	if not new then
-		return nil, Err("`%s` suggested no name", prog)
-	elseif #new > NAME_MAX then
-		return nil, Err("`%s` suggested a name longer than %d bytes", prog, NAME_MAX)
-	elseif new == "." or new == ".." or new:find("[/\\]") then
-		return nil, Err("`%s` suggested `%s`, which isn't a filename", prog, new)
-	end
-	return new, nil
+	return M.parse(prog, output.stdout)
 end
 
 ---Clamp `s` to at most `max` bytes, cutting on a codepoint boundary and appending `marker` when anything was cut.

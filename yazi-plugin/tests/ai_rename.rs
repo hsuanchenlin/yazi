@@ -14,6 +14,12 @@ fn ai_rename() -> (Lua, Table) {
 	(lua, plugin)
 }
 
+fn parse(plugin: &Table, stdout: &str) -> (Option<String>, AnyUserData) {
+	plugin
+		.call_function("parse", ("cli", stdout))
+		.expect("`parse` must report a rejected suggestion, not raise an error")
+}
+
 #[tokio::test]
 async fn missing_cli_is_reported_not_raised() {
 	let (_lua, plugin) = ai_rename();
@@ -29,8 +35,37 @@ async fn missing_cli_is_reported_not_raised() {
 	);
 }
 
+#[test]
+fn blank_suggestion_is_rejected() {
+	let (_lua, plugin) = ai_rename();
+
+	for stdout in ["", " \t ", "\n", "\n\n", "  \n\t\n  "] {
+		let (name, err) = parse(&plugin, stdout);
+		assert_eq!(name, None, "{stdout:?} suggested a name where it printed nothing usable");
+		assert!(
+			err.to_string().unwrap().contains("suggested no name"),
+			"the error must say {stdout:?} suggested nothing to rename to"
+		);
+	}
+}
+
+#[test]
+fn path_shaped_suggestion_is_rejected() {
+	let (_lua, plugin) = ai_rename();
+
+	for stdout in [".", "..", "../etc/", "foo/bar", r"foo\bar"] {
+		let (name, err) = parse(&plugin, stdout);
+		assert_eq!(name, None, "{stdout:?} must never be renamed to");
+		assert!(
+			err.to_string().unwrap().contains("isn't a filename"),
+			"the error must say {stdout:?} wasn't a filename"
+		);
+	}
+}
+
+#[cfg(unix)]
 #[tokio::test]
-async fn blank_suggestion_leaves_the_file_alone() {
+async fn blank_cli_stdout_is_rejected() {
 	let (_lua, plugin) = ai_rename();
 
 	// `true` succeeds printing nothing at all; the `printf` prints a lone newline and nothing else.
@@ -48,8 +83,9 @@ async fn blank_suggestion_leaves_the_file_alone() {
 	}
 }
 
+#[cfg(unix)]
 #[tokio::test]
-async fn path_shaped_suggestion_is_rejected() {
+async fn path_shaped_cli_stdout_is_rejected() {
 	let (_lua, plugin) = ai_rename();
 
 	// The `printf` prints `../etc/` and nothing else, standing in for a CLI that answers with a path.
