@@ -33,8 +33,7 @@ redirections, and quoting have no effect here.
 
 Every whitespace-separated word becomes its own argument, which means a multi-word prompt cannot be
 passed inline: `"claude --print Summarize these files:"` reaches `claude` as four separate arguments,
-not one prompt. Use the shipped wrapper below whenever you want a prompt, or anything else a shell
-would normally do for you.
+not one prompt. Use the shipped wrapper below whenever you want a prompt.
 
 ### Examples
 
@@ -71,8 +70,8 @@ ai_summarize_cmd = "/Users/you/.local/bin/ya-summarize"
 ```
 
 The script defaults to `claude --print`. Override the binary with `YA_SUMMARIZE_CLI` (a single
-executable name or path, default `claude`) and extra flags with `YA_SUMMARIZE_ARGS` (default
-`--print`).
+executable name or path, default `claude`) and extra flags with `YA_SUMMARIZE_ARGS` (word-split,
+default `--print`).
 
 ## Remapping the key
 

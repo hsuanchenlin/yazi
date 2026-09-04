@@ -42,8 +42,7 @@ effect here.
 
 Every whitespace-separated word becomes its own argument, which means a multi-word flag value cannot
 be passed inline: `"claude --print --system You are terse"` reaches `claude` as six separate
-arguments. Use the shipped wrapper below whenever you want a prompt, or anything else a shell would
-normally do for you.
+arguments. Use the shipped wrapper below whenever you want a prompt.
 
 ### Examples
 
@@ -80,7 +79,7 @@ ai_rename_cmd = "/Users/you/.local/bin/ya-rename"
 ```
 
 The script defaults to `claude --print`. Override the binary with `YA_RENAME_CLI` (a single
-executable name or path, default `claude`) and extra flags with `YA_RENAME_ARGS` (default
+executable name or path, default `claude`) and extra flags with `YA_RENAME_ARGS` (word-split, default
 `--print`).
 
 `ai_rename_cmd` is separate from [`ai_summarize_cmd`](ai-summarize.md), so the two plugins can use
