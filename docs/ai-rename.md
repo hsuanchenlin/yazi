@@ -42,7 +42,8 @@ effect here.
 
 Every whitespace-separated word becomes its own argument, which means a multi-word flag value cannot
 be passed inline: `"claude --print --system You are terse"` reaches `claude` as six separate
-arguments. Use the wrapper script below whenever you want a shell to do that for you.
+arguments. Use the shipped wrapper below whenever you want a prompt, or anything else a shell would
+normally do for you.
 
 ### Examples
 
@@ -57,21 +58,30 @@ ai_rename_cmd = "gpt --model gpt-5"
 ai_rename_cmd = "echo"
 ```
 
-A wrapper script when you need shell features:
+### Wrapper script
+
+This repo ships `scripts/ya-rename`. It holds a fixed "reply with a filename" instruction, forwards
+the name as argv, and prints only the first non-empty line of the CLI's stdout. Copy it to an
+absolute path:
 
 ```sh
-#!/bin/sh
-# ~/.local/bin/ya-rename
-exec claude --print --system-prompt 'Answer with a filename and nothing else.' "$1"
+mkdir -p "$HOME/.local/bin"
+cp scripts/ya-rename "$HOME/.local/bin/ya-rename"
+chmod +x "$HOME/.local/bin/ya-rename"
 ```
+
+Then point the plugin at that path. Spell it out in full: `~` is not expanded, and each word in
+`ai_rename_cmd` is its own argument, so a leading `~` would be looked up as a program literally
+named `~/.local/bin/ya-rename`.
 
 ```toml
 [plugin]
-ai_rename_cmd = "/home/you/.local/bin/ya-rename"
+ai_rename_cmd = "/Users/you/.local/bin/ya-rename"
 ```
 
-Spell that path out in full: since the command is not run through a shell, a leading `~` is not
-expanded and would be looked up as a program literally named `~/.local/bin/ya-rename`.
+The script defaults to `claude --print`. Override the binary with `YA_RENAME_CLI` (a single
+executable name or path, default `claude`) and extra flags with `YA_RENAME_ARGS` (default
+`--print`).
 
 `ai_rename_cmd` is separate from [`ai_summarize_cmd`](ai-summarize.md), so the two plugins can use
 different tools.
