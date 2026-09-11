@@ -1,7 +1,6 @@
 use std::{env::{self, consts::{ARCH, OS}}, fmt::Write, sync::OnceLock};
 
-// Workspace version, or the fork release version when built at an exact
-// release tag or with `YAZI_VERSION` set (see `build.rs`).
+// See `docs/releasing.md`.
 const VERSION: &str = match option_env!("YAZI_VERSION") {
 	Some(v) => v,
 	None => env!("CARGO_PKG_VERSION"),

@@ -68,6 +68,7 @@ impl<'a> SftpPath<'a> {
 
 // --- Traits
 pub trait AsSftpPath<'a> {
+	#[allow(clippy::wrong_self_convention)]
 	fn as_sftp_path(self) -> SftpPath<'a>;
 }
 

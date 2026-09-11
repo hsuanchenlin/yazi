@@ -23,9 +23,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 	Ok(())
 }
 
-// Fork releases are tagged `v<version>-ai` without bumping Cargo versions, so
-// an explicit `YAZI_VERSION` or an exact git tag overrides the workspace
-// version baked into the binary.
+// See `docs/releasing.md` for how the displayed version is resolved.
 fn version() {
 	println!("cargo:rerun-if-env-changed=YAZI_VERSION");
 
