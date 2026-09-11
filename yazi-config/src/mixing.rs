@@ -36,8 +36,10 @@ where
 				false
 			} else if x.any_file() && mem::replace(any_file, true) {
 				false
+			} else if x.any_dir() && mem::replace(any_dir, true) {
+				false
 			} else {
-				!(x.any_dir() && mem::replace(any_dir, true))
+				true
 			}
 		})
 		.map(Into::into)

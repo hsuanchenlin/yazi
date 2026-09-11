@@ -13,7 +13,7 @@ pub struct Auth {
 	pub scheme: Scheme,
 	pub domain: Domain<'static>,
 	#[serde(default)]
-	pub parent: Option<Arc<Self>>,
+	pub parent: Option<Arc<Auth>>,
 }
 
 impl Default for Auth {

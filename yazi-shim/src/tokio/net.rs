@@ -21,7 +21,7 @@ impl UnixStreamExt for UnixStream {
 	{
 		#[cfg(unix)]
 		{
-			Self::connect(path).await
+			::tokio::net::UnixStream::connect(path).await
 		}
 
 		#[cfg(windows)]
