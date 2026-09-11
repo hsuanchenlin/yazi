@@ -12,6 +12,10 @@ in bulk, never moves a file to another directory, and never deletes anything.
 
 Hover a file and press `R`.
 
+A ``Suggesting a new name for `notes.txt`…`` notification appears at once, and `Suggesting a name…`
+replaces the `R Rename` hint on the status bar, next to the task gauge, for as long as the CLI runs.
+Pressing `R` again in the meantime is refused with a warning rather than starting a second run.
+
 The plugin sends the filename - the basename alone, never the path - to your configured CLI, takes
 the first non-blank line of its stdout as the suggestion, and opens Yazi's rename prompt pre-filled
 with it. From there it is the ordinary rename you already know:
@@ -84,6 +88,16 @@ executable name or path, default `claude`) and extra flags with `YA_RENAME_ARGS`
 
 `ai_rename_cmd` is separate from [`ai_summarize_cmd`](ai-summarize.md), so the two plugins can use
 different tools.
+
+## Status bar
+
+The right side of the status bar carries an `R Rename` hint next to `ai-summarize`'s `A Summarize`,
+styled like the which-key popup; see [`ai-summarize`](ai-summarize.md#status-bar) for how the hints
+behave and how to hide or reword them. For this plugin the override is:
+
+```lua
+require("ai-rename").status = function() return "" end
+```
 
 ## Remapping the key
 

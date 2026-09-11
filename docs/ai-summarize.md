@@ -1,7 +1,7 @@
 # ai-summarize
 
 `ai-summarize` is a preset plugin that runs an AI CLI of your choosing over the files you have
-selected, and drops the Markdown it prints into a summary file that Yazi then reveals and previews.
+selected, and shows the Markdown it prints in a viewer right over the directory you are in.
 
 It is always an explicit keystroke - nothing runs on hover, on preload, or in batch. The plugin only
 reads the files you point it at; it never moves, renames, or deletes anything.
@@ -10,13 +10,40 @@ reads the files you point it at; it never moves, renames, or deletes anything.
 
 Select one or more files (`<Space>`), or just hover one, and press `A`.
 
-The plugin spawns your configured CLI with the target paths appended as arguments, writes the
-Markdown from its stdout to `<runtime dir>/ai-summaries/<timestamp>.md`, and reveals that file so the
-preview pane renders it. Press `H` to go back to where you were.
+A `Summarizing 3 files…` notification appears at once, and the same words replace the `A Summarize`
+hint on the status bar, next to the task gauge, for as long as the CLI runs. Pressing `A` again in
+the meantime is refused with a warning rather than starting a second run.
+
+The plugin spawns your configured CLI with the target paths appended as arguments and, once it
+finishes, opens the Markdown from its stdout in a viewer centered over your current directory:
+
+- `j`/`k` or `<Down>`/`<Up>` scroll a line, `<C-d>`/`<C-u>` half a page, `<PageDown>`/`<PageUp>` a page.
+- `g`/`G` jump to the top and bottom; the bottom-right corner shows where you are.
+- `q`, `<Esc>`, or `<C-c>` close it.
+
+Closing the viewer leaves you exactly where you were: same directory, same selection, same hover.
+A copy of each summary is also kept at `<runtime dir>/ai-summaries/<timestamp>.md`, should you want
+it again later.
 
 If the CLI can't be started, exits non-zero, or prints nothing, the plugin reports it as a
 notification and leaves everything untouched. A summary is capped at 1 MiB; anything beyond that is
-dropped with a note at the end of the file.
+dropped with a note at the end.
+
+## Status bar
+
+The right side of the status bar carries an `A Summarize` hint - and, from [`ai-rename`](ai-rename.md),
+`R Rename` - so the keys are discoverable without opening the help. They take the colors of the
+which-key popup (`[which] cand` and `desc` in your theme), so they look native under any flavor.
+
+While a summary is generating, the hint reads `Summarizing 3 files…` instead. On terminals narrower
+than 100 columns that text is left out, so the task gauge and the file name still fit side by side.
+
+The hint always names `A`. To hide it, or to say something else after remapping the key, replace the
+plugin's `status` in your `init.lua`:
+
+```lua
+require("ai-summarize").status = function() return "" end
+```
 
 ## Configuration
 

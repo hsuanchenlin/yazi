@@ -131,6 +131,9 @@ function Status:position()
 	}
 end
 
+---Whether the bar is too narrow to fit anything beside the file name once the task gauge overlays it.
+function Status:cramped() return self._area.w < 100 end
+
 function Status:reflow() return { self } end
 
 function Status:redraw()
