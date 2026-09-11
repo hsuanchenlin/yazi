@@ -34,13 +34,41 @@ local rename = ya.sync(function(_, url, name)
 	return true
 end)
 
+---Claim the plugin for one run, showing `text` on the status bar until `finish`.
+---
+---A second `R` while a name is still being suggested is refused rather than billed twice.
+---@param text string
+---@return boolean
+local begin = ya.sync(function(self, text)
+	if self._busy then
+		return false
+	end
+
+	self._busy = text
+	ui.render()
+	return true
+end)
+
+local finish = ya.sync(function(self)
+	self._busy = nil
+	ui.render()
+end)
+
+function M:setup()
+	Status:children_add(function(status) return self:status(status) end, 600, Status.RIGHT)
+end
+
 function M:entry()
 	local url, name = hovered()
 	if not url then
 		return M.notify("warn", "Nothing to rename")
+	elseif not begin("Suggesting a name…") then
+		return M.notify("warn", "A name is still being suggested, wait for it to arrive first")
 	end
+	M.notify("info", string.format("Suggesting a new name for `%s`…", name))
 
 	local new, err = M.suggest(rt.plugin.ai_rename_cmd, name)
+	finish()
 	if not new then
 		return M.notify("error", tostring(err))
 	end
@@ -129,6 +157,19 @@ function M.clamp(s, max, marker)
 
 	local ok, start = pcall(utf8.offset, s, 0, max + 1)
 	return s:sub(1, ok and start and start - 1 or max) .. marker
+end
+
+---The status bar segment: what `R` does, or what it is busy doing when `status` has room for that beside the task gauge.
+---@param status Status
+---@return Line|string
+function M:status(status)
+	if not self._busy then
+		return ui.Line { ui.Span("R"):style(th.which.cand), ui.Span(" Rename  "):style(th.which.desc) }
+	elseif status:cramped() then
+		return ""
+	else
+		return ui.Line { ui.Span(self._busy .. "  "):style(th.which.desc) }
+	end
 end
 
 function M.notify(level, s) ya.notify { title = "AI rename", content = s, timeout = 5, level = level } end
