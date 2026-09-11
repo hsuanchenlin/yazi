@@ -2,7 +2,6 @@ use std::ffi::OsStr;
 
 // --- AsStrandView
 pub trait AsStrandView<'a, T> {
-	#[allow(clippy::wrong_self_convention)]
 	fn as_strand_view(self) -> T;
 }
 

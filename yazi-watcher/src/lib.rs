@@ -1,5 +1,3 @@
-#![allow(clippy::implicit_clone)]
-
 yazi_macro::mod_pub!(local r#virtual);
 
 yazi_macro::mod_flat!(backend proxy refresher reporter watched watchee watcher);

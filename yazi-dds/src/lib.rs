@@ -1,5 +1,3 @@
-#![allow(clippy::owned_cow, clippy::ptr_arg)]
-
 yazi_macro::mod_pub!(ember);
 
 yazi_macro::mod_flat!(client payload pubsub pump server state stream);

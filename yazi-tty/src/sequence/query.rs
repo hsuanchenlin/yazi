@@ -52,10 +52,6 @@ pub struct RequestKgpShm {
 	shm: Option<NamedSharedMemory>,
 }
 
-impl Default for RequestKgpShm {
-	fn default() -> Self { Self::new() }
-}
-
 impl RequestKgpShm {
 	pub fn new() -> Self { Self { shm: NamedSharedMemory::new(&[0; 3]).ok() } }
 }
